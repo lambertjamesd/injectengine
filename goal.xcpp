@@ -1,0 +1,19 @@
+
+Provide* PLAYER_PROVIDE_ENTIRES[] = {
+    &Player::PROVIDE,
+    Transform::PROVIDE,
+    RigidBody::PROVIDE,
+    CapsuleCollider::PROVIDE,
+};
+
+GameObject* Player::Create(GameObject& parent, const PlayerConfig& config) {
+    ProvideValues values;
+
+    values.provide(config.rigidBody);
+    values.provide(config.capsuleCollider);
+
+    GameObject* result = parent->createChild(
+        ProvideEntries(PLAYER_PROVIDE_ENTIRES, PLAYER_PROVIDE_ENTIRES + sizeof(PLAYER_PROVIDE_ENTIRES)/sizeof(PLAYER_PROVIDE_ENTIRES[0])),
+        move(values)
+    )
+}

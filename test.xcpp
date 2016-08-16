@@ -1,11 +1,14 @@
-#include "injectorkey.h"
-#include "classprovide.h"
-#include "valueprovide.h"
-#include "injector.h"
-#include "factoryprovide.h"
-#include "gameobject.h"
-
 #include <iostream>
+
+#include "inject/injectorkey.h"
+#include "inject/classprovide.h"
+#include "inject/valueprovide.h"
+#include "inject/injector.h"
+#include "inject/factoryprovide.h"
+#include "engine/gameobject.h"
+
+using namespace inject;
+using namespace engine;
 
 InjectorKey<int> CONFIG_VALUE(1);
 

@@ -3,7 +3,7 @@
 
 #include "item.h"
 
-class Invetory {
+class Inventory {
 public:
     bool hasItem(const std::string& name) const;
     int itemCount(const std::string& name) const;

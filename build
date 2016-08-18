@@ -1,0 +1,1 @@
+g++ *.cpp engine/*.cpp inject/*.cpp text-adventure/*.cpp -g -std=c++11

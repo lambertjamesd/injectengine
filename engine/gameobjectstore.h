@@ -25,16 +25,24 @@ namespace engine {
     template <typename T>
     class WeakRef {
     public:
+        WeakRef() :
+            objectStore(0),
+            id(0),
+            pointer(0) {
+
+        }
+
         WeakRef(GameObjectStore& objectStore, GameObjectId id, T* pointer) :
-            objectStore(objectStore),
+            objectStore(&objectStore),
             id(id),
             pointer(pointer) {
 
         }
 
         bool exists() const {
-            return objectStore.exists(id);
+            return objectStore && objectStore->exists(id);
         }
+        
         T* lock() const {
             if (exists()) {
                 return pointer;
@@ -43,7 +51,7 @@ namespace engine {
             }
         }
     private:
-        GameObjectStore& objectStore;
+        GameObjectStore* objectStore;
         GameObjectId id;
         T* pointer;
     };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../inject/classprovide.h"
+#include "../inject/injectorkey.h"
 
 class Interaction {
 public:

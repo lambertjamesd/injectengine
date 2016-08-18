@@ -48,15 +48,22 @@ namespace engine {
     template <>
     class WeakRef<GameObject> {
     public:
+        WeakRef() :
+            objectStore(NULL),
+            id(0),
+            pointer(NULL) {
+
+        }
+
         WeakRef(GameObjectStore& objectStore, GameObjectId id, GameObject* pointer) :
-            objectStore(objectStore),
+            objectStore(&objectStore),
             id(id),
             pointer(pointer) {
 
         }
 
         bool exists() const {
-            return pointer && objectStore.exists(id);
+            return objectStore && pointer && objectStore->exists(id);
         }
 
         GameObject* lock() {
@@ -70,22 +77,22 @@ namespace engine {
         template <typename Klass>
         WeakRef<Klass> getComponent() const {
             if (exists()) {
-                return WeakRef<Klass>(objectStore, id, pointer->injector.getOptional<Klass>());
+                return WeakRef<Klass>(*objectStore, id, pointer->injector.getOptional<Klass>());
             } else {
-                return WeakRef<Klass>(objectStore, id, 0);
+                return WeakRef<Klass>(NULL, 0, NULL);
             }
         }
 
         template <typename Klass>
         WeakRef<Klass> getComponent(const inject::InjectorKey<Klass>& key) const {
             if (exists()) {
-                return WeakRef<Klass>(objectStore, id, pointer->injector.get(key.optional()));
+                return WeakRef<Klass>(*objectStore, id, pointer->injector.get(key.optional()));
             } else {
-                return WeakRef<Klass>(objectStore, id, 0);
+                return WeakRef<Klass>(NULL, 0, NULL);
             }
         }
     private:
-        GameObjectStore& objectStore;
+        GameObjectStore* objectStore;
         GameObjectId id;
         GameObject* pointer;
     };

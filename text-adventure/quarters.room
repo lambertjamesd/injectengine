@@ -2,3 +2,21 @@ You are in your quarters.
 *when not landed
     You hear an announcement telling all personel to head to the bridge. 
 There is a [door -> ship-hub].
+*if shoot captain
+    A few crew members rush to the captian as the remainder draw their weopons and point them all at you. They demand that you drop your weopon.
+    *set crew-hostile true
+    *set captain-dead true
+    *goto crew-capture
+
+crew-capture
+    You are surrounded by your crew, they demand you drop your weapon.
+    *when has gun
+        *if shoot crew
+            You only manage to shoot one other member before you are taken down.
+            *gameover
+    *if run
+        You don't get far before you are shot in the back.
+        *gameover
+    *if surrender, drop weopon, drop
+        The crew grabs you and puts you in prison
+        *goto jail

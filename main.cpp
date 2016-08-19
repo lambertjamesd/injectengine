@@ -28,6 +28,8 @@ void runGame() {
     ClassProvide<World> worldProvide;
     ClassProvide<GameState> gameStateProvide;
 
+    ConditionCompiler compiler;
+
     Provide* rootProvides[] = {
         &gameProvide,
         &interactionProvide,
@@ -47,9 +49,10 @@ void runGame() {
 
     ProvideEntries roomEntries(roomProvides, sizeof(roomProvides) / sizeof(roomProvides[0]));
 
-    RoomData roomData("start", "You see a foo bar");
+    RoomData roomData("start");
 
-    roomData.paths["eject"] = "void";
+    roomData.descriptions.push_back(Description("You see a foo bar", compiler.compile("a")));
+    roomData.paths.push_back(Path("eject", Condition(), "space"));
 
     createRoom(roomData, *rootGameObject, roomEntries);
 

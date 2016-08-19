@@ -9,6 +9,7 @@ public:
     void setCurrentRoom(const std::string& room);
     const std::string getCurrentRoom() const;
     const GameVariables& getVariables() const;
+    GameVariables& getVariables();
 
     static inject::InjectorKey<GameState> KEY;
 private:

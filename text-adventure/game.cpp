@@ -15,6 +15,7 @@ void Game::run() {
 
         if (currentRoom) {
             interaction.output(currentRoom->describe(gameState));
+            currentRoom->doActions(gameState);
         } else {
             interaction.output("You are in the void of space");
         }
@@ -22,10 +23,16 @@ void Game::run() {
         interaction.output("\n: ");
         std::string command = interaction.readCommand();
 
+        const Path* maybePath = currentRoom ? currentRoom->getPath(command) : NULL;
+
+        if (maybePath && !maybePath->getCondition().isTrue(gameState.getVariables())) {
+            maybePath = NULL;
+        }
+
         if (command == "quit" || command == "exit") {
             running = false;
-        } else if (currentRoom && currentRoom->getPath(command)) {
-            gameState.setCurrentRoom(*currentRoom->getPath(command));
+        } else if (maybePath) {
+            maybePath->follow(gameState);
         } else {
             interaction.output("Did not understand ");
             interaction.output(command);

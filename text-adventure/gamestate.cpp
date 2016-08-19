@@ -12,4 +12,8 @@ const GameVariables& GameState::getVariables() const {
     return variables;
 }
 
+GameVariables& GameState::getVariables() {
+    return variables;
+}
+
 inject::InjectorKey<GameState> GameState::KEY;

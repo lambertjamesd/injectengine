@@ -1,16 +1,17 @@
 #include "room.h"
 #include "world.h"
 
-RoomData::RoomData(const std::string& identifier, const std::string& description) :
+RoomData::RoomData(const std::string& identifier) :
     identifier(identifier) {
-    descriptions.push_back(description);
+
 }
 
 Room::Room(const RoomData& data) :
     identifier(data.identifier),
-    paths(data.paths) {
-    for (auto it = data.descriptions.begin(); it != data.descriptions.end(); ++it) {
-        descriptions.push_back(Description(*it));
+    descriptions(data.descriptions),
+    actions(actions) {
+    for (auto it = data.paths.begin(); it != data.paths.end(); ++it) {
+        paths.insert(std::make_pair(it->getName(), *it));
     }
 }
 
@@ -22,7 +23,7 @@ const std::string& Room::getIdentifier() const {
     return identifier;
 }
 
-const std::string* Room::getPath(const std::string& name) const {
+const Path* Room::getPath(const std::string& name) const {
     auto result = paths.find(name);
 
     if (result != paths.end()) {
@@ -45,5 +46,11 @@ std::string Room::describe(const GameState& state) const {
         return result;
     } else {
         return "There is nothing here";
+    }
+}
+
+void Room::doActions(GameState& state) const {
+    for (auto it = actions.begin(); it != actions.end(); ++it) {
+        it->tryRun(state);
     }
 }

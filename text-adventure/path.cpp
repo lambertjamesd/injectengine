@@ -2,15 +2,13 @@
 
 Path::Path(const std::string& pathName, const Condition& condition, const std::string& targetRoom) :
     pathName(pathName),
-    condition(condition),
-    targetRoom(targetRoom) {
-
+    condition(condition) {
+    actions.push_back(Action::gotoRoom(targetRoom));
 }
 
-Path::Path(const std::string& pathName, const Condition& condition, const std::string& targetRoom, const std::vector<Action>& actions) :
+Path::Path(const std::string& pathName, const Condition& condition, const std::vector<Action>& actions) :
     pathName(pathName),
     condition(condition),
-    targetRoom(targetRoom),
     actions(actions) {
 
 }
@@ -24,8 +22,6 @@ const Condition& Path::getCondition() const {
 }
 
 void Path::follow(GameState& gameState) const {
-    gameState.setCurrentRoom(targetRoom);
-
     for (auto it = actions.begin(); it != actions.end(); ++it) {
         it->run(gameState);
     }

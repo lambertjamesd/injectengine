@@ -1,0 +1,5 @@
+
+rooms
+    your_quarters rooms/your-quarters.txt
+
+start your_quarters

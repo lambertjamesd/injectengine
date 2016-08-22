@@ -9,7 +9,7 @@
 class Path {
 public:
     Path(const std::string& pathName, const Condition& condition, const std::string& targetRoom);
-    Path(const std::string& pathName, const Condition& condition, const std::string& targetRoom, const std::vector<Action>& actions);
+    Path(const std::string& pathName, const Condition& condition, const std::vector<Action>& actions);
 
     const std::string& getName() const;
     const Condition& getCondition() const;
@@ -18,6 +18,5 @@ public:
 private:
     std::string pathName;
     Condition condition;
-    std::string targetRoom;
     std::vector<Action> actions;
 };

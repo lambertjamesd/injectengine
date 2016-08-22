@@ -12,7 +12,7 @@ ParseState::ParseState() :
 ParseState::ParseState(const char* start) : 
     wordStart(start),
     wordEnd(start),
-    streamEnd(NULL) {
+    streamEnd(start + strlen(start)) {
 
 }
 
@@ -56,8 +56,29 @@ bool ParseState::consume(const char* word) {
     }
 }
 
+bool ParseState::consumePartial(const char* word) {
+    const char* startStep = wordStart;
+
+    while (*word) {
+        if (*word != *startStep) {
+            return false;
+        }
+
+        ++word;
+        ++startStep;
+    }
+
+    if (startStep > streamEnd) {
+        return false;
+    }
+
+    wordStart = startStep;
+    wordEnd = std::max(wordStart, wordEnd);
+    return true;
+}
+
 bool ParseState::eof() const {
-    return wordStart == streamEnd || !*wordStart;
+    return wordStart == streamEnd || *wordStart == '\0';
 }
 
 ParseState ParseState::readLine() {
@@ -95,6 +116,7 @@ ParseState ParseState::readWhitespace() {
         if (!isspace(*wordStart)) {
             break;
         }
+        ++wordStart;
     }
 
     wordEnd = wordStart;
@@ -102,8 +124,12 @@ ParseState ParseState::readWhitespace() {
     return ParseState(begin, wordStart);
 }
 
-std::size_t length() const {
+std::size_t ParseState::length() const {
     return static_cast<std::size_t>(streamEnd - wordStart);
+}
+
+const char* ParseState::begin() const {
+    return wordStart;
 }
 
 bool ParseState::isSubsetOf(const ParseState& other) const {
@@ -115,7 +141,7 @@ bool ParseState::isSubsetOf(const ParseState& other) const {
 }
 
 bool ParseState::isEmpty() const {
-    return wordStart == streamEnd || *wordStart == NULL;   
+    return wordStart == streamEnd || *wordStart == '\0';   
 }
 
 bool ParseState::operator ==(const ParseState& other) const {

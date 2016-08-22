@@ -10,6 +10,7 @@
 #include "text-adventure/condition.h"
 #include "text-adventure/conditioncompiler.h"
 #include "text-adventure/gamevariables.h"
+#include "text-adventure/roomparser.h"
 
 using namespace engine;
 using namespace inject;
@@ -29,6 +30,7 @@ void runGame() {
     ClassProvide<GameState> gameStateProvide;
 
     ConditionCompiler compiler;
+    RoomParser roomParser;
 
     Provide* rootProvides[] = {
         &gameProvide,
@@ -55,6 +57,17 @@ void runGame() {
     roomData.paths.push_back(Path("eject", Condition(), "space"));
 
     createRoom(roomData, *rootGameObject, roomEntries);
+
+    RoomData space("space");
+
+    roomParser.Parse(
+        "You are in space and will die\n"
+        "*action foo\n"
+        "   *goto start\n"
+        "   *set a true"
+    , space);
+
+    createRoom(space, *rootGameObject, roomEntries);
 
     rootGameObject->getComponent<GameState>().lock()->setCurrentRoom("start");
 

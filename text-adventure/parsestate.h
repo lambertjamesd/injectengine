@@ -13,12 +13,14 @@ public:
     std::string toString() const;
     bool isNext(const char* word) const;
     bool consume(const char* word);
+    bool consumePartial(const char* word);
     bool eof() const;
 
     ParseState readLine();
     ParseState readWhitespace();
 
     std::size_t length() const;
+    const char* begin() const;
     bool isSubsetOf(const ParseState& other) const;
     bool isEmpty() const;
 

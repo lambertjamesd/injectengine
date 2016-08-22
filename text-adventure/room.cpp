@@ -9,7 +9,7 @@ RoomData::RoomData(const std::string& identifier) :
 Room::Room(const RoomData& data) :
     identifier(data.identifier),
     descriptions(data.descriptions),
-    actions(actions) {
+    actions(data.actions) {
     for (auto it = data.paths.begin(); it != data.paths.end(); ++it) {
         paths.insert(std::make_pair(it->getName(), *it));
     }

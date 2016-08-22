@@ -1,15 +1,27 @@
 #include "action.h"
 
-Action Action::setBoolean(const std::string& key, bool value) {
-    return Action(key, value);
+Action Action::setBoolean(const std::string& key, bool boolValue) {
+    return Action(SET_BOOLEAN, key, boolValue);
+}
+
+Action Action::gotoRoom(const std::string& roomName) {
+    return Action(GOTO_ROOM, roomName, false);
 }
 
 void Action::run(GameState& state) const {
-    state.getVariables().setBoolean(key, value);
+    switch (type) {
+        case SET_BOOLEAN:
+            state.getVariables().setBoolean(key, boolValue);
+            break;
+        case GOTO_ROOM:
+            state.setCurrentRoom(key);
+            break;
+    }
 }
 
-Action::Action(const std::string& key, bool value) :
+Action::Action(Type type, const std::string& key, bool boolValue) :
+    type(type),
     key(key),
-    value(value) {
+    boolValue(boolValue) {
 
 }

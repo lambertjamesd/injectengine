@@ -6,12 +6,20 @@
 
 class Action {
 public:
-    static Action setBoolean(const std::string& key, bool value);
+    static Action setBoolean(const std::string& key, bool boolValue);
+    static Action gotoRoom(const std::string& roomName);
 
     void run(GameState& state) const;
-private:
-    Action(const std::string& key, bool value);
 
+private:
+    enum Type {
+        SET_BOOLEAN,
+        GOTO_ROOM,
+    };
+
+    Action(Type type, const std::string& key, bool boolValue);
+
+    Type type;
     std::string key;
-    bool value;
+    bool boolValue;
 };

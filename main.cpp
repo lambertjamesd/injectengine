@@ -1,8 +1,10 @@
 
 #include <iostream>
+#include <fstream>
 #include <cassert>
 
 #include "engine/gameobject.h"
+#include "text-adventure/parsestate.h"
 #include "text-adventure/game.h"
 #include "text-adventure/room.h"
 #include "text-adventure/world.h"
@@ -21,6 +23,55 @@ void createRoom(const RoomData& roomData, GameObject& parent, const ProvideEntri
     GameObject* result = parent.createChild(roomProvides, data);
 
     parent.getComponent<World>().lock()->addRoom(result->getComponent<Room>());
+}
+
+void parseGame(GameObject& game, const ProvideEntries& roomProvides) {
+    std::ifstream gameStream("game.txt");
+    std::string line;
+    RoomParser roomParser;
+    GameState& state = *game.getComponent<GameState>().lock();
+
+    bool roomList = false;
+
+    if (gameStream.is_open()) {
+        while (gameStream.good()) {
+            std::getline(gameStream, line);
+
+            ParseState parseState(line.c_str());
+
+            ParseState whitespace = parseState.readWhitespace();
+            parseState.stepWord();
+
+            if (!parseState.isEmpty()) {
+                if (whitespace.isEmpty()) {
+                    roomList = false;
+
+                    if (parseState.consume("rooms")) {
+                        roomList = true;
+                    } else if (parseState.consume("start")) {
+                        game.getComponent<GameState>().lock()->setCurrentRoom(parseState.toString());
+                    } else if (parseState.consume("set")) {
+                        std::string key = parseState.currentWord();
+                        parseState.stepWord();
+
+                        if (parseState.consume("true")) {
+                            state.getVariables().setBoolean(key, true);
+                        }
+                    }
+                } else if (roomList) {
+                    RoomData roomData(parseState.currentWord());
+                    parseState.stepWord();
+                    std::ifstream roomStream(parseState.toString());
+                    roomParser.parse(roomStream, roomData);
+                    createRoom(roomData, game, roomProvides);
+                }
+            }
+
+        }
+        gameStream.close();
+    } else {
+        std::cout << "Could not load game" << std::endl;
+    }
 }
 
 void runGame() {
@@ -51,25 +102,9 @@ void runGame() {
 
     ProvideEntries roomEntries(roomProvides, sizeof(roomProvides) / sizeof(roomProvides[0]));
 
-    RoomData roomData("start");
-
-    roomData.descriptions.push_back(Description("You see a foo bar", compiler.compile("a")));
-    roomData.paths.push_back(Path("eject", Condition(), "space"));
-
-    createRoom(roomData, *rootGameObject, roomEntries);
-
-    RoomData space("space");
-
-    roomParser.Parse(
-        "You are in space and will die\n"
-        "*action foo\n"
-        "   *goto start\n"
-        "   *set a true"
-    , space);
-
-    createRoom(space, *rootGameObject, roomEntries);
-
     rootGameObject->getComponent<GameState>().lock()->setCurrentRoom("start");
+
+    parseGame(*rootGameObject, roomEntries);
 
     rootGameObject->getComponent<Game>().lock()->run();
 

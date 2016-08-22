@@ -22,11 +22,11 @@ RoomParser::State::State() :
     scopeStack.push_back(Scope());
 }
 
-void RoomParser::Parse(std::istream& input, RoomData& output) const {
+void RoomParser::parse(std::istream& input, RoomData& output) const {
     State parseState;
+    std::string line;
 
     while (!input.eof()) {
-        std::string line;
         std::getline(input, line);
         parseLine(ParseState(line.c_str()), parseState, output);
     }
@@ -37,7 +37,7 @@ void RoomParser::Parse(std::istream& input, RoomData& output) const {
     }
 }
 
-void RoomParser::Parse(const std::string& input, RoomData& output) const {
+void RoomParser::parse(const std::string& input, RoomData& output) const {
     State parseState;
     ParseState stream(input.c_str());
 
@@ -75,7 +75,7 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
             parseState.expectIndent = false;
         }
     } else if (!noIndent && !noRetract) {
-        throw RoomParseError("Bad indentation");
+        throw RoomParseError("whitepsace mismatch");
     }
 
     Scope& scope = parseState.scopeStack.back();
@@ -84,9 +84,9 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
         line.stepWord();
 
         if (line.consume("if")) {
-            newScope(parseState, conditionCompiler.compile(line));
+            newScope(parseState, conditionCompiler.compile(line), output);
         } else if (line.consume("action")) {
-            Scope& actionScope = newScope(parseState, Condition());
+            Scope& actionScope = newScope(parseState, Condition(), output);
             actionScope.message = line.toString();
             actionScope.isPath = true;
         } else if (line.consume("goto")) {
@@ -130,12 +130,14 @@ void RoomParser::resolveScope(Scope& scope, RoomData& output) const {
     scope.currentActions.clear();
 }
 
-RoomParser::Scope& RoomParser::newScope(State& parseState, const Condition& condition) const {
-    const Scope& scope = parseState.scopeStack.back();
+RoomParser::Scope& RoomParser::newScope(State& parseState, const Condition& condition, RoomData& output) const {
+    Scope& scope = parseState.scopeStack.back();
 
     if (scope.isPath) {
         throw RoomParseError("Cannot add new scope to path");
     } else {
+        resolveScope(scope, output);
+
         Scope newScope;
         newScope.whitespace = scope.whitespace;
         newScope.condition = scope.condition.andWith(condition);

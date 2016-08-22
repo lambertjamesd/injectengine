@@ -145,7 +145,7 @@ bool ParseState::isEmpty() const {
 }
 
 bool ParseState::operator ==(const ParseState& other) const {
-    return (length() == other.length()) && strncmp(wordStart, other.wordStart, length());
+    return (length() == other.length()) && (length() == 0 || strncmp(wordStart, other.wordStart, length()));
 }
 
 bool ParseState::operator !=(const ParseState& other) const {

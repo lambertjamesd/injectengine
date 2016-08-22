@@ -2,4 +2,6 @@
 rooms
     your_quarters rooms/your-quarters.txt
 
+set needed-at-bridge true
+
 start your_quarters

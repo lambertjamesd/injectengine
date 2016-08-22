@@ -18,8 +18,8 @@ private:
 
 class RoomParser {
 public:
-    void Parse(const std::string& input, RoomData& output) const;
-    void Parse(std::istream& input, RoomData& output) const;
+    void parse(const std::string& input, RoomData& output) const;
+    void parse(std::istream& input, RoomData& output) const;
 private:
     struct Scope
     {
@@ -39,7 +39,7 @@ private:
 
     void parseLine(ParseState line, State& parseState, RoomData& output) const;
     void resolveScope(Scope& scope, RoomData& output) const;
-    Scope& newScope(State& state, const Condition& condition) const;
+    Scope& newScope(State& state, const Condition& condition, RoomData& output) const;
 
     ConditionCompiler conditionCompiler;
 };

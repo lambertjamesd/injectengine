@@ -1,0 +1,6 @@
+You are in your quarters. There is an door leading to the hallway. 
+*if needed-at-bridge
+    Your intercom is calling all hands to the bridge. 
+
+*action door
+    *goto hallway

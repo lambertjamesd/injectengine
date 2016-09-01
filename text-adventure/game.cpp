@@ -1,4 +1,7 @@
+#include <cstring>
+
 #include "game.h"
+#include "parsestate.h"
 
 Game::Game(Interaction& interaction, GameState& gameState, World& world) : 
     interaction(interaction),
@@ -29,10 +32,23 @@ void Game::run() {
             maybePath = NULL;
         }
 
+        ParseState commandParser(command.c_str());
+        commandParser.stepWord();
+
         if (command == "quit" || command == "exit") {
             running = false;
         } else if (maybePath) {
             maybePath->follow(gameState);
+        } else if (commandParser.consume("debug"))  {
+            if (commandParser.consume("get")) {
+                if (gameState.getVariables().getBoolean(commandParser.toString())) {
+                    interaction.output("true\n\n");
+                } else {
+                    interaction.output("false\n\n");
+                }
+            } else {
+                interaction.output("Debug command not recognized\n\n");
+            }
         } else {
             interaction.output("Did not understand ");
             interaction.output(command);

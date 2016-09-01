@@ -1,0 +1,6 @@
+Doors for the crew's quaters surround you, including your quarters. There is an door leading to the ship hub.
+
+*action ship hub
+    *goto ship-hub
+*action your quaters
+    *goto your-quaters

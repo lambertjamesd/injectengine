@@ -4,7 +4,7 @@
 
 std::string Interaction::readCommand() {
     std::string result;
-    std::cin >> result;
+    std::getline(std::cin, result);
     return result;
 }
 

@@ -102,6 +102,23 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
             } else {
                 throw RoomParseError("Invalid value for set");
             }
+        } else if (line.consume("item")) {
+            resolveScope(scope, output);
+
+            std::string itemName = line.currentWord();
+            line.stepWord();
+
+            std::string hasItem = "has-" + itemName;
+            std::string hasTakenItem = "has-taken-" + itemName;
+
+            Condition noItemCondition = scope.condition.andWith(BooleanCondition(hasTakenItem, false));
+            output.descriptions.push_back(Description(line.toString(), noItemCondition));
+            
+            std::vector<Action> takeActions;
+            takeActions.push_back(Action::setBoolean(hasItem, true));
+            takeActions.push_back(Action::setBoolean(hasTakenItem, true));
+
+            output.paths.push_back(Path("take " + itemName, noItemCondition, takeActions));
         } else {
             throw RoomParseError("Unrecognized command");
         }

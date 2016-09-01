@@ -1,6 +1,9 @@
-You are in your quarters. There is an door leading to the hallway. 
+You're in your quarters. There is an door leading to the hallway. 
+
+*item gun A gun hanging on the wall. 
+
 *if needed-at-bridge
     Your intercom is calling all hands to the bridge. 
 
-*action door
-    *goto hallway
+*action hallway
+    *goto quarters-hub

@@ -1,7 +1,9 @@
 
 rooms
-    your_quarters rooms/your-quarters.txt
+    your-quarters rooms/your-quarters.txt
+    quarters-hub rooms/quarters-hub.txt
+    ship-hub rooms/ship-hub.txt
 
 set needed-at-bridge true
 
-start your_quarters
+start your-quarters

@@ -115,6 +115,12 @@ void testConditions() {
     GameVariables variables;
     ConditionCompiler compiler;
 
+
+    {
+        Condition testCondition = compiler.compile("needed-at-bridge");
+        assert(!testCondition.isTrue(variables));
+    }
+
     {
         Condition testCondition = compiler.compile("a");
         assert(!testCondition.isTrue(variables));

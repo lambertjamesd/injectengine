@@ -10,6 +10,10 @@ bool BooleanCondition::isTrue(const GameVariables& variables) const {
     return variables.getBoolean(key) == expectedValue;
 }
 
+BooleanCondition BooleanCondition::negate() const {
+    return BooleanCondition(key, !expectedValue);
+}
+
 std::string BooleanCondition::toString() const {
     if (expectedValue) {
         return key;
@@ -29,13 +33,27 @@ bool AndCondition::isTrue(const GameVariables& variables) const {
 }
 
 
-void AndCondition::add(const BooleanCondition& conditoin) {
-    subConditions.push_back(conditoin);
+void AndCondition::add(const BooleanCondition& condition) {
+    subConditions.push_back(condition);
 }
 
 AndCondition AndCondition::andWith(const AndCondition& other) const {
     AndCondition result(*this);
-    result.subConditions.insert(result.subConditions.end(), other.subConditions.begin(), other.subConditions.end());
+    result.andEq(other);
+    return result;
+}
+
+void AndCondition::andEq(const AndCondition& other) {
+    subConditions.insert(subConditions.end(), other.subConditions.begin(), other.subConditions.end());
+}
+
+Condition AndCondition::negate() const {
+    Condition result;
+
+    for (auto &subCondition : subConditions) {
+        result.add(subCondition.negate());
+    }
+
     return result;
 }
 
@@ -63,36 +81,26 @@ bool Condition::isTrue(const GameVariables& variables) const {
     return subConditions.size() == 0;
 }
 
-void Condition::add(const AndCondition& conditoin) {
-    subConditions.push_back(conditoin);
+void Condition::add(const AndCondition& condition) {
+    subConditions.push_back(condition);
+}
+
+void Condition::add(const BooleanCondition& condition) {
+    AndCondition subCondition;
+    subCondition.add(condition);
+    subConditions.push_back(subCondition);
 }
 
 Condition Condition::andWith(const Condition& other) const {
-    Condition result;
-
-    for (auto thisSub = subConditions.begin(); thisSub != subConditions.end(); ++thisSub) {
-        for (auto otherSub = other.subConditions.begin(); otherSub != other.subConditions.end(); ++otherSub) {
-            result.subConditions.push_back(thisSub->andWith(*otherSub));
-        }
-    }
-
+    Condition result(*this);
+    result.andEq(other);
     return result;
 }
 
 Condition Condition::andWith(const AndCondition& other) const {
-    if (subConditions.size() == 0) {
-        Condition result;
-        result.add(other);
-        return result;
-    } else {
-        Condition result;
-
-        for (auto thisSub = subConditions.begin(); thisSub != subConditions.end(); ++thisSub) {
-            result.subConditions.push_back(thisSub->andWith(other));
-        }
-
-        return result;
-    }
+    Condition result(*this);
+    result.andEq(other);
+    return result;
 }
 
 Condition Condition::andWith(const BooleanCondition& other) const {
@@ -108,9 +116,40 @@ Condition Condition::andWith(const BooleanCondition& other) const {
         for (auto resultSub = result.subConditions.begin(); resultSub != result.subConditions.end(); ++resultSub) {
             resultSub->add(other);
         }
-
-        return result;
     }
+}
+
+void Condition::andEq(const Condition& other) {
+    if (subConditions.size() == 0) {
+        *this = other;
+    } else {
+        for (auto &thisSub : subConditions) {
+            for (auto &otherSub : other.subConditions) {
+                thisSub.andEq(otherSub);
+            }
+        }
+    }
+}
+
+
+void Condition::andEq(const AndCondition& other) {
+    if (subConditions.size() == 0) {
+        add(other);
+    } else {
+        for (auto &thisSub : subConditions) {
+            thisSub.andEq(other);
+        }
+    }
+}
+
+Condition Condition::negate() const {
+    Condition result;
+
+    for (auto &subCondition : subConditions) {
+        result.andEq(subCondition.negate());
+    }
+
+    return result;
 }
 
 std::string Condition::toString() const {

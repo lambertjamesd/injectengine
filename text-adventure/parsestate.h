@@ -8,6 +8,7 @@ public:
     ParseState(const char* start);
     ParseState(const char* start, const char* end);
 
+    void ensureWord();
     void stepWord();
     std::string currentWord() const;
     std::string toString() const;
@@ -23,6 +24,8 @@ public:
     const char* begin() const;
     bool isSubsetOf(const ParseState& other) const;
     bool isEmpty() const;
+
+    void clear();
 
     bool operator ==(const ParseState& other) const;
     bool operator !=(const ParseState& other) const;

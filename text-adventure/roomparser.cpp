@@ -59,13 +59,34 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
     bool noRetract = line.isEmpty() || lastWhitespace.isSubsetOf(whitespace);
 
     if (noIndent && !noRetract) {
-        while (parseState.scopeStack.size() && parseState.scopeStack.back().whitespace != whitespace) {
-            resolveScope(parseState.scopeStack.back(), output);
-            parseState.scopeStack.pop_back();
+        auto loopUntil = parseState.scopeStack.rbegin();
+
+        while (loopUntil != parseState.scopeStack.rend() && loopUntil->whitespace != whitespace) {
+            ++loopUntil;
         }
 
-        if (parseState.scopeStack.size() == 0) {
+        if (loopUntil == parseState.scopeStack.rend()) {
+            std::cerr << '"' << whitespace.toString() << line.toString() << '"' << std::endl;
             throw RoomParseError("Bad indentation");
+        } else {
+            for (auto it = parseState.scopeStack.rbegin(); it != loopUntil; ++it) {
+                resolveScope(*it, output);
+            }
+
+            ParseState elseCheck = line;
+            elseCheck.stepWord();
+
+            if (elseCheck.consume("*else")) {
+                Condition negated = loopUntil.base()->condition.negate();
+                parseState.scopeStack.erase(loopUntil.base(), parseState.scopeStack.end());
+
+                newScope(parseState, negated, output);
+
+                line.clear();
+            } else {
+                parseState.scopeStack.erase(loopUntil.base(), parseState.scopeStack.end());
+            }
+
         }
     } else if (!noIndent && noRetract) {
         if (!parseState.expectIndent) {
@@ -158,6 +179,7 @@ RoomParser::Scope& RoomParser::newScope(State& parseState, const Condition& cond
         Scope newScope;
         newScope.whitespace = scope.whitespace;
         newScope.condition = scope.condition.andWith(condition);
+
         parseState.scopeStack.push_back(newScope);
         parseState.expectIndent = true;
 

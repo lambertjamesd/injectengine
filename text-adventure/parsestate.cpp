@@ -23,6 +23,12 @@ ParseState::ParseState(const char* start, const char* end) :
         
 }
 
+void ParseState::ensureWord() {
+    if (wordStart == wordEnd) {
+        stepWord();
+    }
+}
+
 void ParseState::stepWord() {
     while (wordEnd != streamEnd && *wordEnd && isspace(*wordEnd)) {
         ++wordEnd;
@@ -142,6 +148,10 @@ bool ParseState::isSubsetOf(const ParseState& other) const {
 
 bool ParseState::isEmpty() const {
     return wordStart == streamEnd || *wordStart == '\0';   
+}
+
+void ParseState::clear() {
+    wordStart = streamEnd;
 }
 
 bool ParseState::operator ==(const ParseState& other) const {

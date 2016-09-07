@@ -4,6 +4,11 @@ You're in your quarters. There is an door leading to the hallway.
 
 *if needed-at-bridge
     Your intercom is calling all hands to the bridge. 
+*else
+    *if has-gun
+        You are not needed, but you have a gun
+    *else
+        You are not needed
 
 *action hallway
     *goto quarters-hub

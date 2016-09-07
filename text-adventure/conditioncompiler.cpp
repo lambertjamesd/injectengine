@@ -19,10 +19,11 @@ AndCondition ConditionCompiler::parseAndCondition(ParseState& state) const {
 
 Condition ConditionCompiler::compile(const ParseState& stateSource) const {
     ParseState state(stateSource);
-    state.stepWord();
+    state.ensureWord();
     Condition result;
     do {
         result.add(parseAndCondition(state));
     } while (state.consume("or") && !state.eof());
+
     return result;
 }

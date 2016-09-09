@@ -74,10 +74,10 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
             }
 
             ParseState elseCheck = line;
-            elseCheck.stepWord();
+            elseCheck.ensureWord();
 
             if (elseCheck.consume("*else")) {
-                Condition negated = loopUntil.base()->condition.negate();
+                Condition negated = loopUntil.base()->lastCondition.negate();
                 parseState.scopeStack.erase(loopUntil.base(), parseState.scopeStack.end());
 
                 newScope(parseState, negated, output);
@@ -97,6 +97,8 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
         }
     } else if (!noIndent && !noRetract) {
         throw RoomParseError("whitepsace mismatch");
+    } else if (parseState.expectIndent) {
+        throw RoomParseError("Indentation expected");
     }
 
     Scope& scope = parseState.scopeStack.back();
@@ -178,6 +180,7 @@ RoomParser::Scope& RoomParser::newScope(State& parseState, const Condition& cond
 
         Scope newScope;
         newScope.whitespace = scope.whitespace;
+        newScope.lastCondition = condition;
         newScope.condition = scope.condition.andWith(condition);
 
         parseState.scopeStack.push_back(newScope);

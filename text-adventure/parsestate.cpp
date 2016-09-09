@@ -155,7 +155,7 @@ void ParseState::clear() {
 }
 
 bool ParseState::operator ==(const ParseState& other) const {
-    return (length() == other.length()) && (length() == 0 || strncmp(wordStart, other.wordStart, length()));
+    return (length() == other.length()) && (length() == 0 || strncmp(wordStart, other.wordStart, length()) == 0);
 }
 
 bool ParseState::operator !=(const ParseState& other) const {

@@ -24,6 +24,7 @@ private:
     struct Scope
     {
         Scope();
+        Condition lastCondition;
         Condition condition;
         ParseState whitespace;
         std::string message;

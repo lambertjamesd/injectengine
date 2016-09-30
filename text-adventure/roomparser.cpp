@@ -142,6 +142,10 @@ void RoomParser::parseLine(ParseState line, State& parseState, RoomData& output)
             takeActions.push_back(Action::setBoolean(hasTakenItem, true));
 
             output.paths.push_back(Path("take " + itemName, noItemCondition, takeActions));
+        } else if (line.consume("rewrite")) {
+            std::string input = line.split("->").toString();
+            std::string output = line.toString();
+            scope.rewriteRules.push_back(RewriteRule(input, output));
         } else {
             throw RoomParseError("Unrecognized command");
         }
@@ -162,6 +166,9 @@ void RoomParser::resolveScope(Scope& scope, RoomData& output) const {
     } else {
         for (auto it = scope.currentActions.begin(); it != scope.currentActions.end(); ++it) {
             output.actions.push_back(ConditionalAction(scope.condition, *it));
+        }
+        for (auto& rule : scope.rewriteRules) {
+            output.rewriteRules.push_back(ConditionalRewriteRule(scope.condition, rule));
         }
         output.descriptions.push_back(Description(scope.message, scope.condition));
     }

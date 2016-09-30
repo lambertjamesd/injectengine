@@ -26,6 +26,10 @@ void Game::run() {
         interaction.output("\n: ");
         std::string command = interaction.readCommand();
 
+        if (currentRoom) {
+            command = currentRoom->rewrite(gameState.getVariables(), command);
+        }
+
         const Path* maybePath = currentRoom ? currentRoom->getPath(command) : NULL;
 
         if (maybePath && !maybePath->getCondition().isTrue(gameState.getVariables())) {

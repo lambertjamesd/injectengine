@@ -10,5 +10,6 @@ You're in your quarters. There is an door leading to the hallway.
     *else
         You are not needed
 
+*rewrite leave -> hallway
 *action hallway
     *goto quarters-hub

@@ -130,6 +130,22 @@ ParseState ParseState::readWhitespace() {
     return ParseState(begin, wordStart);
 }
 
+ParseState ParseState::wordRange(const ParseState& next) const {
+    return ParseState(wordStart, next.wordEnd);
+}
+
+ParseState ParseState::split(const char* word) {
+    ParseState result = *this;
+    ParseState lastWord(result.wordStart, result.streamEnd);
+
+    while (!consume(word)) {
+        lastWord = result;
+        stepWord();
+    }
+
+    return result.wordRange(lastWord);
+}
+
 std::size_t ParseState::length() const {
     return static_cast<std::size_t>(streamEnd - wordStart);
 }
@@ -160,4 +176,12 @@ bool ParseState::operator ==(const ParseState& other) const {
 
 bool ParseState::operator !=(const ParseState& other) const {
     return !(other == *this);
+}
+
+bool ParseState::operator <(const ParseState& other) const {
+    if (length() < other.length()) {
+        return true;
+    } else {
+        return length() == other.length() && strncmp(wordStart, other.wordStart, length()) < 0;
+    }
 }

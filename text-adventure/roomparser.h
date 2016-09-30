@@ -29,6 +29,7 @@ private:
         ParseState whitespace;
         std::string message;
         std::vector<Action> currentActions;
+        std::vector<RewriteRule> rewriteRules;
         bool isPath;
     };
 

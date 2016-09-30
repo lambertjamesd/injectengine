@@ -9,7 +9,8 @@ RoomData::RoomData(const std::string& identifier) :
 Room::Room(const RoomData& data) :
     identifier(data.identifier),
     descriptions(data.descriptions),
-    actions(data.actions) {
+    actions(data.actions),
+    rewriteRules(data.rewriteRules) {
     for (auto it = data.paths.begin(); it != data.paths.end(); ++it) {
         paths.insert(std::make_pair(it->getName(), *it));
     }
@@ -17,6 +18,10 @@ Room::Room(const RoomData& data) :
 
 void Room::addDescription(const Description& description) {
     descriptions.push_back(description);
+}
+
+void Room::addRewriteRule(const ConditionalRewriteRule& rewriteRule) {
+    rewriteRules.push_back(rewriteRule);
 }
 
 const std::string& Room::getIdentifier() const {
@@ -31,6 +36,19 @@ const Path* Room::getPath(const std::string& name) const {
     } else {
         return NULL;
     }
+}
+
+std::string Room::rewrite(const GameVariables& gamestate, const std::string& input) const {
+    std::string current = input;
+    std::string next;
+
+    for (auto& rule : rewriteRules) {
+        if (rule.rewrite(gamestate, current, next)) {
+            current = next;
+        }
+    }
+
+    return current;
 }
 
 std::string Room::describe(const GameState& state) const {

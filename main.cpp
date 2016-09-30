@@ -4,15 +4,16 @@
 #include <cassert>
 
 #include "engine/gameobject.h"
-#include "text-adventure/parsestate.h"
-#include "text-adventure/game.h"
-#include "text-adventure/room.h"
-#include "text-adventure/world.h"
-#include "text-adventure/gamestate.h"
 #include "text-adventure/condition.h"
 #include "text-adventure/conditioncompiler.h"
+#include "text-adventure/game.h"
+#include "text-adventure/gamestate.h"
 #include "text-adventure/gamevariables.h"
+#include "text-adventure/parsestate.h"
+#include "text-adventure/rewriterule.h"
+#include "text-adventure/room.h"
 #include "text-adventure/roomparser.h"
+#include "text-adventure/world.h"
 
 using namespace engine;
 using namespace inject;
@@ -175,9 +176,88 @@ void testConditions() {
     }
 }
 
+void testRewriteRule() {
+    {
+        RewriteRule rule("foo", "bar");
+
+        assert(rule.doesMatch("foo"));
+        assert(!rule.doesMatch("fo"));
+        assert(!rule.doesMatch("fooo"));
+        assert(!rule.doesMatch("foo bar"));
+
+        std::string rewrite;
+        rule.rewrite("foo", rewrite);
+        assert(rewrite == "bar");
+    }
+
+    {
+        RewriteRule rule("shoot *", "use gun with \\0");
+
+        std::string rewrite;
+        assert(rule.rewrite("shoot enemy", rewrite));
+        assert(rewrite == "use gun with enemy");
+    }
+
+    {
+        RewriteRule rule("use * with *", "use \\a with \\b");
+
+        std::string rewrite;
+        assert(rule.rewrite("use cake with mouth", rewrite));
+        assert(rewrite == "use cake with mouth");
+        assert(rule.rewrite("use mouth with cake", rewrite));
+        assert(rewrite == "use cake with mouth");
+    }
+
+    {
+        RewriteRule rule("one * two * three *", "un \\0 dos \\1 tres \\2");
+
+        std::string rewrite;
+        assert(rule.rewrite("one bunny two cats three dogs", rewrite));
+        assert(rewrite == "un bunny dos cats tres dogs");
+        assert(!rule.doesMatch("one bunny two cats tres dogs"));
+    }
+
+    {
+        RewriteRule rule("?please eat food", "eat food");
+
+        std::string rewrite;
+        assert(rule.rewrite("please eat food", rewrite));
+        assert(rewrite == "eat food");
+        assert(rule.rewrite("eat food", rewrite));
+        assert(rewrite == "eat food");
+        assert(!rule.doesMatch("please don't eat food"));
+    }
+
+    {
+        RewriteRule rule("?please *", "\\0");
+        std::string rewrite;
+        assert(rule.rewrite("please dance", rewrite));
+        assert(rewrite == "dance");
+        assert(rule.rewrite("please eat the food", rewrite));
+        assert(rewrite == "eat the food");
+    }
+
+    {
+        RewriteRule rule("shoot *", "use gun with \\0");
+
+        std::string rewrite;
+        assert(rule.rewrite("shoot big fat cow", rewrite));
+        assert(rewrite == "use gun with big fat cow");
+    }
+
+    {
+        RewriteRule rule("bake * into cake", "use cake with \\0");
+
+        std::string rewrite;
+        assert(rule.rewrite("bake big fat cow into cake", rewrite));
+        assert(rewrite == "use cake with big fat cow");
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     testConditions();
+    testRewriteRule();
     runGame();
 
     return 0;

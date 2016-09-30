@@ -19,6 +19,9 @@ public:
 
     ParseState readLine();
     ParseState readWhitespace();
+    ParseState wordRange(const ParseState& next) const;
+
+    ParseState split(const char* word);
 
     std::size_t length() const;
     const char* begin() const;
@@ -29,6 +32,8 @@ public:
 
     bool operator ==(const ParseState& other) const;
     bool operator !=(const ParseState& other) const;
+
+    bool operator <(const ParseState& other) const;
 private:
     const char* wordStart;
     const char* wordEnd;
